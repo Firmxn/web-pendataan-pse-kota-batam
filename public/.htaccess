@@ -1,0 +1,66 @@
+# =============================================================================
+# SECURITY HEADERS UNTUK STATIC ASSETS
+# Bagian ini menangani security headers untuk file statis (JS, CSS, font)
+# yang disajikan langsung oleh Apache tanpa melewati Laravel middleware.
+# Melengkapi SecurityHeadersMiddleware.php yang hanya aktif untuk response PHP.
+# =============================================================================
+
+# Tandai request ke /build/ (asset hasil kompilasi Vite) sebagai static response.
+# Variabel ini digunakan sebagai kondisi untuk menerapkan CSP khusus di bawah.
+<IfModule mod_setenvif.c>
+    SetEnvIf Request_URI "^/build(/|$)" PSE_STATIC_RESPONSE=1
+</IfModule>
+
+<IfModule mod_headers.c>
+    # Hapus header X-Powered-By agar tidak mengekspos teknologi server (PHP/Apache)
+    Header onsuccess unset X-Powered-By
+    Header always unset X-Powered-By
+
+    # Cegah browser melakukan MIME-type sniffing pada response
+    Header onsuccess unset X-Content-Type-Options
+    Header always set X-Content-Type-Options "nosniff"
+
+    # Batasi informasi referrer yang dikirim saat navigasi ke situs eksternal
+    Header onsuccess unset Referrer-Policy
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+    # Cegah clickjacking: halaman tidak bisa dimuat dalam iframe oleh situs lain
+    Header onsuccess unset X-Frame-Options
+    Header always set X-Frame-Options "SAMEORIGIN"
+
+    # Nonaktifkan akses ke fitur perangkat yang tidak digunakan oleh aplikasi
+    Header onsuccess unset Permissions-Policy
+    Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=(), vr=()"
+
+    # Content Security Policy khusus untuk asset statis di /build/
+    # Hanya diterapkan jika variabel PSE_STATIC_RESPONSE aktif (env=PSE_STATIC_RESPONSE)
+    Header always set Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data:; connect-src 'self'; frame-ancestors 'self'; base-uri 'self'; form-action 'self'" env=PSE_STATIC_RESPONSE
+</IfModule>
+
+# =============================================================================
+# URL REWRITING - KONFIGURASI BAWAAN LARAVEL
+# Mengarahkan semua request ke index.php (front controller pattern)
+# =============================================================================
+<IfModule mod_rewrite.c>
+    <IfModule mod_negotiation.c>
+        # Nonaktifkan MultiViews (mencegah Apache menebak file berdasarkan nama)
+        # Nonaktifkan Indexes (mencegah listing isi direktori jika tidak ada index file)
+        Options -MultiViews -Indexes
+    </IfModule>
+
+    RewriteEngine On
+
+    # Teruskan header Authorization ke PHP agar Laravel bisa membaca token/Bearer
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+    # Hapus trailing slash pada URL (kecuali direktori), redirect 301 ke URL tanpa slash
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} (.+)/$
+    RewriteRule ^ %1 [L,R=301]
+
+    # Arahkan semua request yang bukan file/direktori nyata ke index.php (Laravel router)
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [L]
+</IfModule>

@@ -1,0 +1,297 @@
+╔══════════════════════════════════════════════════════════════════╗
+║          WEB PENDATAAN PSE — KOTA BATAM (VERSION LOG)            ║
+║               Dinas Komunikasi dan Informatika                   ║
+╚══════════════════════════════════════════════════════════════════╝
+
+  Versi         : 1.0.0 (Initial Development)
+  Tanggal Rilis : April 2026
+  Developer     : Firmansyah Pramudia Ariyanto
+  GitHub        : https://github.com/firmxn
+  LinkedIn      : https://www.linkedin.com/in/firmxn/
+
+──────────────────────────────────────────────────────────────────
+  TENTANG SISTEM
+──────────────────────────────────────────────────────────────────
+
+  Sistem ini merupakan aplikasi web untuk pendataan 
+  Penyelenggaraan Sistem Elektronik (PSE) di lingkungan 
+  Pemerintah Kota Batam.
+  Aplikasi mengelola siklus hidup pendaftaran PSE, pengajuan
+  subdomain, dan pengajuan hosting melalui alur verifikasi
+  berjenjang dua level.
+
+
+══════════════════════════════════════════════════════════════════
+  ARSITEKTUR & ROLE-BASED ACCESS CONTROL (RBAC)
+══════════════════════════════════════════════════════════════════
+
+  Sistem menggunakan 5 role utama dengan pemisahan akses ketat:
+
+  ┌──────────────────┬───────────────────────────────────────────┐
+  │ ROLE             │ HAK AKSES                                 │
+  ├──────────────────┼───────────────────────────────────────────┤
+  │ Petugas (ID 1)   │ CRUD PSE, Subdomain, Hosting.             │
+  │                  │ Submit pengajuan ke verifikasi.           │
+  │                  │ Melihat status & riwayat milik sendiri.   │
+  ├──────────────────┼───────────────────────────────────────────┤
+  │ Verifikator 1    │ Verifikasi level 1 (kelengkapan admin).   │
+  │ (ID 2)           │ Approve → teruskan ke Verifikator 2.      │
+  │                  │ Reject → kembalikan ke petugas.           │
+  ├──────────────────┼───────────────────────────────────────────┤
+  │ Verifikator 2    │ Verifikasi final (persetujuan akhir).     │
+  │ (ID 3)           │ Penerbitan dokumen & cetak PDF resmi.     │
+  │                  │ Edit nomor registrasi PSE.                │
+  ├──────────────────┼───────────────────────────────────────────┤
+  │ Eksekutif (ID 4) │ Monitoring global (PSE, Subdomain, Host). │
+  │                  │ Melihat laporan & rekapitulasi data.      │
+  │                  │ Hak akses: Read-only.                     │
+  ├──────────────────┼───────────────────────────────────────────┤
+  │ Admin (ID 5)     │ Manajemen User (CRUD, restore, toggle).   │
+  │                  │ Manajemen Master Data OPD.                │
+  │                  │ Pemeliharaan & konfigurasi sistem.        │
+  └──────────────────┴───────────────────────────────────────────┘
+
+
+══════════════════════════════════════════════════════════════════
+  FITUR-FITUR SISTEM
+══════════════════════════════════════════════════════════════════
+
+  ┌──────────────────────────────────────────────────────────────┐
+  │  1. PENDATAAN TERPADU PSE (Integrated Single Flow)           │
+  ├──────────────────────────────────────────────────────────────┤
+  │  Controller : PseController                                  │
+  │  Role       : Petugas                                        │
+  │  Route      : /pse                                           │
+  │                                                              │
+  │  • Manajemen Terpusat: PSE, Subdomain (1-N), & Hosting.      │
+  │  • Form Adaptif: Field Hosting muncul otomatis (Logic: App). │
+  │  • Single Submission: Pengajuan paket layanan serentak.      │
+  │  • Data Locking: Proteksi draf setelah masuk antrean.        │
+  │  • Batasan Kuota: Maksimal 2 draf aktif per akun petugas.    │
+  └──────────────────────────────────────────────────────────────┘
+
+  ┌──────────────────────────────────────────────────────────────┐
+  │  2. MANAJEMEN PENGAJUAN SUBDOMAIN                            │
+  ├──────────────────────────────────────────────────────────────┤
+  │  Controller : SubdomainRequestController                     │
+  │  Role       : Petugas                                        │
+  │  Route      : /subdomain                                     │
+  │                                                              │
+  │  • Alur Hybrid: Integrasi PSE atau Pengajuan Mandiri.        │
+  │  • Normalisasi Hostname: Strip otomatis prefix/suffix URL.   │
+  │  • Lifecycle: Baru, Perpanjangan, Ubah, & Hapus alamat.      │
+  │  • Real-time Check: Validasi ketersediaan nama subdomain.    │
+  └──────────────────────────────────────────────────────────────┘
+
+  ┌──────────────────────────────────────────────────────────────┐
+  │  3. MANAJEMEN PENGAJUAN HOSTING                              │
+  ├──────────────────────────────────────────────────────────────┤
+  │  Controller : HostingRequestController                       │
+  │  Role       : Petugas                                        │
+  │  Route      : /hosting                                       │
+  │                                                              │
+  │  • Alur Kondisional: Terpicu otomatis untuk kategori Aplikasi│
+  │  • Resource Management: CPU, RAM, & Disk berbasis kuota.     │
+  │  • Sinkronisasi Lateral: Status mengikuti progres PSE induk. │
+  │  • Ekstensibilitas: Dukungan ubah spesifikasi server.        │
+  └──────────────────────────────────────────────────────────────┘
+
+  ┌──────────────────────────────────────────────────────────────┐
+  │  4. VERIFIKASI BERJENJANG 2 LEVEL                            │
+  ├──────────────────────────────────────────────────────────────┤
+  │  Controller : 6 Controller Verifikasi                        │
+  │  Role       : Verifikator 1 & 2                              │
+  │                                                              │
+  │  Level 1 (Administratif): Validasi data & dokumen surat      │
+  │  permohonan.                                                 │
+  │  Level 2 (Substantif): Persetujuan & Input No. Registrasi.   │
+  │                                                              │
+  │  • Shared Layout: Efisiensi peninjauan data multisektoral.   │
+  │  • Jejak Audit: Rekam transparan log pada setiap aksi.       │
+  └──────────────────────────────────────────────────────────────┘
+
+  ┌──────────────────────────────────────────────────────────────┐
+  │  5. DASHBOARD MONITORING & STATISTIK                         │
+  ├──────────────────────────────────────────────────────────────┤
+  │  Controller : DashboardController                            │
+  │  Role       : Semua Role                                     │
+  │  Route      : /dashboard                                     │
+  │                                                              │
+  │  • Role-Based Dashboard: Antarmuka adaptif per peran pengguna│
+  │  • Key Performance Indicator: Pantau Volume (Total data)     │
+  │    & Efisiensi (Jumlah antrean verifikasi yang perlu         │
+  │    diselesaikan).                                            │
+  │  • Visualisasi Tren: Grafik aktivitas 30 hari berbasis       │
+  │    ApexCharts yang adaptif terhadap tema (Light/Dark).       │
+  │  • Executive Summary: Statistik total akun, rincian per OPD, │
+  │    dan akumulasi pendaftaran secara sistemik.                │
+  └──────────────────────────────────────────────────────────────┘
+
+  ┌──────────────────────────────────────────────────────────────┐
+  │  6. PENERBITAN DOKUMEN & CETAK PDF                           │
+  ├──────────────────────────────────────────────────────────────┤
+  │  Controller : IssuanceController                             │
+  │  Role       : Admin, Verifikator, Eksekutif                  │
+  │  Route      : /issuance                                      │
+  │                                                              │
+  │  • Manajemen Registrasi: Penomoran resmi pasca-verifikasi.   │
+  │  • Report Engine: PDF Tanda Bukti & Rekapitulasi Bilingual.  │
+  │  • Tab Filtered: Data PSE, Subdomain, & Hosting Disetujui.   │
+  │  • Bulk Monitoring: Laporan periodik untuk level Eksekutif.  │
+  └──────────────────────────────────────────────────────────────┘
+
+  ┌──────────────────────────────────────────────────────────────┐
+  │  7. MANAJEMEN PENGGUNA (User Management)                     │
+  ├──────────────────────────────────────────────────────────────┤
+  │  Controller : UserController                                 │
+  │  Role       : Admin & Verifikator                            │
+  │  Route      : /users                                         │
+  │                                                              │
+  │  • Role Control: Manajemen akses Admin s/d Petugas OPD.      │
+  │  • Account Security: Fitur Deaktivasi & Restore akun.        │
+  │  • Audit Visibility: Log registrasi & perubahan profil user. │
+  │  • RBAC Strict: Proteksi UUID & Policy (No ID Enumeration).  │
+  └──────────────────────────────────────────────────────────────┘
+
+  ┌──────────────────────────────────────────────────────────────┐
+  │  8. MANAJEMEN DATA OPD                                       │
+  ├──────────────────────────────────────────────────────────────┤
+  │  Controller : OpdController                                  │
+  │  Role       : Admin                                          │
+  │  Route      : /opd                                           │
+  │                                                              │
+  │  • Master Data: Repositori pusat informasi instansi (OPD).   │
+  │  • Data Binding: Integrasi otomatis pada profil & pengajuan. │
+  │  • Manajemen Profil: CRUD data alamat & identitas instansi.  │
+  └──────────────────────────────────────────────────────────────┘
+
+  ┌──────────────────────────────────────────────────────────────┐
+  │  9. RIWAYAT VERIFIKASI & JEJAK AUDIT                         │
+  ├──────────────────────────────────────────────────────────────┤
+  │  Controller : VerificationHistoryController                  │
+  │  Role       : Verifikator 1 & 2                              │
+  │  Route      : /verification/history                          │
+  │                                                              │
+  │  • Polymorphic History: Log tunggal PSE, Subdomain, Hosting. │
+  │  • Timeline Transparan: Catatan alasan revisi tiap tingkat.  │
+  │  • Audit Trail: Sinkronisasi detail verifikasi per bundle.   │
+  └──────────────────────────────────────────────────────────────┘
+
+  ┌──────────────────────────────────────────────────────────────┐
+  │ 10. AUTENTIKASI SSO (Header-based)                           │
+  ├──────────────────────────────────────────────────────────────┤
+  │  Middleware : CheckSsoMiddleware, CheckSsoOptionalMiddleware │
+  │                                                              │
+  │  • Stateless Auth: Integrasi SSO tanpa password lokal.       │
+  │  • Sync Logic: Deteksi otomatis perubahan role dari provider.│
+  │  • Zero CDN Security: Library pemroses dimuat secara lokal.  │
+  │  • Security Flush: Pembersihan session saat pergantian user. │
+  └──────────────────────────────────────────────────────────────┘
+
+  ┌──────────────────────────────────────────────────────────────┐
+  │ 11. UI/UX, THEMING & LOKALISASI                              │
+  ├──────────────────────────────────────────────────────────────┤
+  │  • Modern Stack: Tailwind v4, DaisyUI, & Vanilla JS.         │
+  │  • Dual Theme Engine: Light/Dark mode via Native script.     │
+  │  • Bilingual (ID/EN): Lokalisasi menyeluruh (Form & Label).  │
+  │  • Component Library: 52+ komponen Blade modular & reusable. │
+  │  • UX: Tooltip Native, Modal Dialog, & Static Sort Header.   │
+  └──────────────────────────────────────────────────────────────┘
+
+  ┌──────────────────────────────────────────────────────────────┐
+  │ 12. SECURITY & INFRASTRUCTURE HARDENING                      │
+  ├──────────────────────────────────────────────────────────────┤
+  │                                                              │
+  │  HTTPS & Header Protection:                                  │
+  │  • CSP (Zero External), HSTS, X-Frame-Deny, Nosniff.         │
+  │  • Secure Cookies: HttpOnly, SameSite, Secure flags.         │
+  │                                                              │
+  │  Data & API Safety:                                          │
+  │  • Rate Limiting: Aturan dinamis (Store/Submit/Download).    │
+  │  • Integrity: DB Transaction & FK Constraint (Restrict).     │
+  │  • Validation: Server-side regex & escapeLike() input.       │
+  └──────────────────────────────────────────────────────────────┘
+
+══════════════════════════════════════════════════════════════════
+  STATISTIK CODEBASE v1.0.0
+══════════════════════════════════════════════════════════════════
+
+  ┌─────────────────────────┬───────────────────────────────────┐
+  │ Task Selesai            │ 82 / 87 (94%)                     │
+  │ Controller              │ 16                                │
+  │ Model                   │ 8                                 │
+  │ Middleware              │ 14                                │
+  │ Policy                  │ 5                                 │
+  │ Blade Components        │ 52                                │
+  │ Migration               │ 21                                │
+  │ Seeder                  │ 4                                 │
+  │ Helper                  │ 5                                 │
+  │ Trait                   │ 1 (HasUuid)                       │
+  │ PDF Template            │ 4                                 │
+  │ Bahasa                  │ 2 (Indonesia, English)            │
+  │ External CDN            │ 0 (Offline-first)                 │
+  └─────────────────────────┴───────────────────────────────────┘
+
+══════════════════════════════════════════════════════════════════
+  FITUR UNGGULAN & PENYEMPURNAAN ROADMAP (TELAH SELESAI)
+══════════════════════════════════════════════════════════════════
+
+  Berikut adalah penyempurnaan strategis yang telah 
+  diimplementasikan untuk menjamin kualitas sistem rilis pertama 
+  (v1.0.0):
+
+   1. Restriksi profil petugas (view-only, dikelola Admin).
+   2. Modul manajemen pendaftaran & pengelolaan akun petugas.
+   3. Akses profil terbatas (keamanan data petugas).
+   4. Standarisasi sektor PSE (select/dropdown, bukan teks bebas).
+   5. Konsolidasi alur bisnis terpadu (Integrated Single Flow).
+   6. Penyatuan alur pendaftaran PSE, Subdomain, dan Hosting.
+   7. Form pendaftaran adaptif & integrasi domain 1-N.
+   8. Implementasi role baru: Admin & Eksekutif (monitoring).
+   9. Dashboard khusus dengan filter data cerdas (real-time).
+  10. Akses laporan rekapitulasi data lintas peran (PDF).
+  11. Refactoring & Standardisasi database (OPD, User, PSE).
+  12. Sinkronisasi Dokumentasi Arsitektur Sistem (Full Sync).
+
+  Referensi lengkap: doc/FEATURES_FLOW.md, doc/FILE_MAPPING.md, 
+  doc/DATA_MODEL.md, doc/ROUTES.md
+
+══════════════════════════════════════════════════════════════════
+  PANDUAN UNTUK DEVELOPER SELANJUTNYA
+══════════════════════════════════════════════════════════════════
+
+  Dokumen Referensi Penting:
+  • doc/DATA_MODEL.md    → Skema database, enum, dan relasi 
+    Eloquent.
+  • doc/ROLES.md         → Definisi role dan hak akses (RBAC).
+  • doc/FEATURES_FLOW.md → Dokumentasi alur bisnis (Single Flow).
+  • doc/ROUTES.md        → Pemetaan seluruh route aplikasi.
+  • doc/FILE_MAPPING.md  → Indeks pemetaan struktur seluruh file 
+    sistem.
+  • doc/TASKS.md         → Daftar task (63 done).
+  • doc/TODO.md          → Roadmap poin pengembangan berikutnya.
+  • doc/SEEDER.md        → Urutan dan isi seeder database.
+
+  Konvensi yang Wajib Diikuti:
+  • Jangan edit migration lama — buat migration baru.
+  • Gunakan DB::transaction() untuk operasi multi-tabel.
+  • Validasi input di server-side (jangan hanya client-side).
+  • Semua label UI harus bilingual (lang/id/ dan lang/en/).
+  • Gunakan Blade component yang sudah ada sebelum membuat baru.
+  • Log setiap aksi critical menggunakan Log::info/warning.
+
+  Cara Menambahkan Kredit di File Ini:
+  • Tambahkan blok baru di bawah dengan format berikut:
+
+    ──────────────────────────────────────────────────────────
+    VERSION: X.X.X (Deskripsi Rilis)
+    DEVELOPER: [Nama Lengkap]
+    GITHUB: [URL GitHub]
+    TIMELINE: [Bulan Tahun]
+    FITUR: [Daftar fitur yang dikerjakan]
+    ──────────────────────────────────────────────────────────
+
+╔══════════════════════════════════════════════════════════════════╗
+║  File ini merupakan standar transparansi pengembangan sistem.    ║
+║  Harap dilanjutkan oleh pengembang generasi berikutnya.          ║
+╚══════════════════════════════════════════════════════════════════╝

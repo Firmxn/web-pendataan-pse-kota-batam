@@ -1,0 +1,176 @@
+@import "tailwindcss";
+@import "@fontsource/inter";
+
+[x-cloak] {
+  display: none !important;
+}
+
+/* Override dark mode */
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+@source "../views/**/*.blade.php";
+@source "../js/**/*.js";
+@source "../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php";
+@source "../../storage/framework/views/*.php";
+
+
+/* @theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+} */
+
+@plugin "daisyui" {
+  themes: main, dark;
+}
+
+
+
+
+@plugin "daisyui/theme" {
+  name: "main";
+  default: true;
+  prefersdark: false;
+  color-scheme: "light";
+  --color-base-100: oklch(100% 0 0);
+  --color-base-200: oklch(96% 0.007 247.896);
+  --color-base-300: oklch(92% 0.013 255.508);
+  --color-base-content: oklch(37% 0.044 257.287);
+  --color-primary: #422ad5;
+  --color-primary-content: oklch(100% 0 0);
+  --color-secondary: #8f99dc;
+  --color-secondary-content: oklch(100% 0 0);
+  --color-accent: #ff6200;
+  --color-accent-content: oklch(100% 0 0);
+  --color-neutral: oklch(27% 0.041 260.031);
+  --color-neutral-content: oklch(98% 0.003 247.858);
+  --color-info: oklch(62% 0.214 259.815);
+  --color-info-content: oklch(100% 0 0);
+  --color-success: oklch(72% 0.219 149.579);
+  --color-success-content: oklch(100% 0 0);
+  --color-warning: oklch(85% 0.199 91.936);
+  --color-warning-content: oklch(100% 0 0);
+  --color-error: oklch(63% 0.237 25.331);
+  --color-error-content: oklch(100% 0 0);
+  --radius-selector: 1rem;
+  --radius-field: 0.3rem;
+  --radius-box: 0.5rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+}
+
+
+
+
+@plugin "daisyui/theme" {
+  name: "dark";
+  default: false;
+  prefersdark: true;
+  color-scheme: "dark";
+
+  /* Linear-like Dark Backgrounds (Zinc/Gunmetal tones) */
+  --color-base-100: #19191c;
+  /* Main Background */
+  --color-base-200: #141416;
+  /* Cards / Modals / Sidebar */
+  --color-base-300: #232326;
+  /* Inputs / Borders / Separators */
+  --color-base-content: #eeeeee;
+  /* High contrast text */
+
+  /* --color-primary: #d97706;
+  --color-primary-content: #ffffff; */
+  --color-primary: #422ad5;
+  --color-primary-content: oklch(100% 0 0);
+
+  --color-secondary: #303236;
+  --color-secondary-content: #dcdde1;
+
+  /* --color-accent: oklch(85% 0.199 91.936);
+  --color-accent-content: #19191c; */
+  --color-accent: #fb7185;
+  --color-accent-content: #19191c;
+
+  /* Functional Colors */
+  --color-neutral: #2c2e33;
+  --color-neutral-content: #dcdde1;
+
+  --color-info: #3b82f6;
+  --color-info-content: #19191c;
+
+  --color-success: #22c55e;
+  --color-success-content: #19191c;
+
+  --color-warning: #f59e0b;
+  --color-warning-content: #19191c;
+
+  --color-error: #ef4444;
+  --color-error-content: #19191c;
+
+  /* UI Refinements */
+  --radius-selector: 0.5rem;
+  --radius-field: 0.375rem;
+  --radius-box: 0.5rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+}
+
+
+/* Custom Scrollbar - Global Override */
+html,
+body {
+  scrollbar-width: thin;
+  /* Firefox */
+  scrollbar-color: #422ad5 transparent;
+  /* Firefox */
+}
+
+/* Chrome, Edge, Safari */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-button {
+  display: none;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #422ad5;
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #311b92;
+}
+
+/* --- Dark Mode Override --- */
+/* [data-theme='dark'] ::-webkit-scrollbar-thumb {
+  background-color: #d97706;
+} */
+
+/* [data-theme='dark'] ::-webkit-scrollbar-thumb:hover {
+  background-color: #b45309;
+} */
+
+/* Firefox Support */
+/* [data-theme='dark'] {
+  scrollbar-color: #d97706 transparent;
+} */
+
+
+/* Latar belakang grid titik-titik untuk halaman Welcome */
+.welcome-body-bg {
+  background-size: 24px 24px;
+  background-image: radial-gradient(oklch(var(--b2)) 1px, transparent 1px);
+}

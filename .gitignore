@@ -1,0 +1,84 @@
+# Laravel
+/.phpunit.cache
+/node_modules
+/public/build
+/public/hot
+/public/storage
+/storage/*.key
+/vendor
+.phpunit.result.cache
+Homestead.json
+Homestead.yaml
+auth.json
+
+# Environment
+.env
+.env.backup
+.env.production
+.env.local
+.env.*.local
+
+# Logs
+npm-debug.log
+yarn-error.log
+*.log
+
+# IDE
+/.fleet
+/.idea
+# .vscode - Keep project-specific settings (e.g., Tailwind v4 CSS lint config)
+# .vscode/**
+# !.vscode/settings.json
+# !.vscode/extensions.json
+*.swp
+*.swo
+*~
+/.kiro
+/.trae
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Vite
+/node_modules/.vite
+.vite
+
+# Backup & Temp
+*.bak
+*.tmp
+*.temp
+
+# Certificates (jangan commit certificate production)
+*.key
+*.crt
+*.pem
+*.p12
+*.pfx
+
+# Database dumps & local database
+*.sql
+*.sqlite
+*.sqlite-journal
+
+# Compiled
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
+
+# Package managers
+# Note: package-lock.json and composer.lock SHOULD be committed for reproducible builds
+yarn.lock
+
+# Documentation build (jika ada)
+/docs/_build
+/docs/.doctrees
+/doc/RULES.md
+
+# Local development
+.phpunit.result.cache
+.php-cs-fixer.cache

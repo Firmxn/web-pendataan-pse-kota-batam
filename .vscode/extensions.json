@@ -1,0 +1,20 @@
+{
+    "recommendations": [
+        // PHP & Laravel
+        "bmewburn.vscode-intelephense-client",
+        "amiralizadeh9480.laravel-extra-intellisense",
+        "onecentlin.laravel-blade",
+        "shufo.vscode-blade-formatter",
+        // Tailwind CSS
+        "bradlc.vscode-tailwindcss",
+        // Code Quality
+        "editorconfig.editorconfig",
+        "esbenp.prettier-vscode",
+        // Git
+        "eamodio.gitlens",
+        // Utilities
+        "christian-kohler.path-intellisense",
+        "formulahendry.auto-rename-tag",
+        "naumovs.color-highlight"
+    ]
+}
