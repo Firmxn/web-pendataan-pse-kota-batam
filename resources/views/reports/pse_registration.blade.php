@@ -11,7 +11,7 @@
                         <tr>
                             <td>Nomor</td>
                             <td>:</td>
-                            <td>B- &nbsp; &nbsp; /DISKOMINFO/{{ date('Y') }}</td>
+                            <td>{{ $pse->registration_number }}</td>
                         </tr>
                         <tr>
                             <td>Sifat</td>
@@ -33,7 +33,7 @@
                 <td valign="top" align="right"
                     style="text-align: right; vertical-align: top; padding-top: 8px; white-space: nowrap;">
                     <p style="margin: 0; line-height: 1;">Batam,
-                        {{ format_date_indo($pse->verificationHistories->last()->created_at ?? now()) }}</p>
+                        {{ format_date_indo($pse->verificationHistories->last()?->created_at ?? now()) }}</p>
                 </td>
             </tr>
         </table>
@@ -42,11 +42,11 @@
             <div class="table-info">
                 <h3>Informasi Sistem</h3>
                 <table>
-                    <tr>
+                    {{-- <tr>
                         <td>Nomor Pendataan PSE</td>
                         <td>:</td>
                         <td><strong>{{ $pse->registration_number ?? '-' }}</strong></td>
-                    </tr>
+                    </tr> --}}
                     <tr>
                         <td>Nama Sistem</td>
                         <td>:</td>
@@ -55,7 +55,7 @@
                     <tr>
                         <td>Sektor</td>
                         <td>:</td>
-                        <td>{{ $pse->sector ?? '-' }}</td>
+                        <td>{{ $pse->sector_label ?? '-' }}</td>
                     </tr>
                     <tr>
                         <td valign="top">Daftar Subdomain</td>
@@ -110,7 +110,7 @@
                     <tr>
                         <td>Lokasi Penyimpanan</td>
                         <td>:</td>
-                        <td>{{ $pse->storage_location ?? '-' }}</td>
+                        <td>{{ $pse->storage_location_label ?? '-' }}</td>
                     </tr>
                 </table>
             </div>

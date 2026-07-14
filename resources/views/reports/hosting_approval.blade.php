@@ -11,7 +11,7 @@
                         <tr>
                             <td>Nomor</td>
                             <td>:</td>
-                            <td>B- &nbsp; &nbsp; /DISKOMINFO/{{ date('Y') }}</td>
+                            <td>....................../DISKOMINFO/{{ date('Y') }}</td>
                         </tr>
                         <tr>
                             <td>Sifat</td>
@@ -33,7 +33,7 @@
                 <td valign="top" align="right"
                     style="text-align: right; vertical-align: top; padding-top: 8px; white-space: nowrap;">
                     <p style="margin: 0; line-height: 1;">Batam,
-                        {{ format_date_indo($hosting->verificationHistories->last()->created_at ?? now()) }}</p>
+                        {{ format_date_indo($hosting->verificationHistories->last()?->created_at ?? now()) }}</p>
                 </td>
             </tr>
         </table>
@@ -49,12 +49,12 @@
                     <tr>
                         <td>OPD</td>
                         <td>:</td>
-                        <td>{{ $hosting->pse->name ?? 'OPD' }}</td>
+                        <td>{{ $hosting->pse->opd->name ?? 'OPD' }}</td>
                     </tr>
                     <tr>
                         <td>Nama Petugas</td>
                         <td>:</td>
-                        <td>{{ $hosting->user->role->role_name ?? 'Petugas' }}</td>
+                        <td>{{ $hosting->user->name ?? 'Petugas' }}</td>
                     </tr>
                     <tr>
                         <td>Tipe Pengajuan</td>
@@ -99,7 +99,7 @@
                     <tr>
                         <td>Catatan Tambahan</td>
                         <td>:</td>
-                        <td>{{ $hosting->additional_notes ?? '-' }}</td>
+                        <td>{{ $hosting->notes ?? '-' }}</td>
                     </tr>
                 </table>
             </div>

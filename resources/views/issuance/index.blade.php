@@ -206,16 +206,103 @@
                         </x-ui.card>
                     </div>
 
-                    <div class="mt-8 flex items-center rounded-xl border border-base-200 px-4 py-3 backdrop-blur-sm">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                            class="stroke-base-content/50 h-5 w-5 shrink-0 mr-3">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                        <span class="text-sm">
-                            {{ __('Klik tombol') }} <span class="text-accent font-bold">{{ __('Cetak PDF') }}</span>
-                            {{ __('untuk mengunduh laporan rekapitulasi lengkap periode ini.') }}
-                        </span>
+                    <div class="mt-8 flex flex-col gap-8">
+                        @if (isset($pseData) && $pseData->isNotEmpty())
+                            <div>
+                                <h3 class="text-lg font-bold mb-4">{{ __('Rincian Data PSE') }}</h3>
+                                <x-ui.table>
+                                    <x-ui.table-head>
+                                        <tr>
+                                            <th>{{ __('No') }}</th>
+                                            <th>{{ __('Nama Sistem') }}</th>
+                                            <th>{{ __('OPD') }}</th>
+                                            <th>{{ __('Nomor Pendataan') }}</th>
+                                            <th>{{ __('Tanggal Disetujui') }}</th>
+                                        </tr>
+                                    </x-ui.table-head>
+                                    <tbody>
+                                        @foreach ($pseData as $item)
+                                            <tr>
+                                                <td>{{ $loop->iteration }}</td>
+                                                <td>{{ $item->system_name }}</td>
+                                                <td>{{ $item->opd->name ?? '-' }}</td>
+                                                <td>{{ $item->registration_number ?? '-' }}</td>
+                                                <td>{{ format_date_indo($item->approved_at) }}</td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </x-ui.table>
+                            </div>
+                        @endif
+
+                        @if (isset($subdomainData) && $subdomainData->isNotEmpty())
+                            <div>
+                                <h3 class="text-lg font-bold mb-4">{{ __('Rincian Data Subdomain') }}</h3>
+                                <x-ui.table>
+                                    <x-ui.table-head>
+                                        <tr>
+                                            <th>{{ __('No') }}</th>
+                                            <th>{{ __('Nama Subdomain') }}</th>
+                                            <th>{{ __('Sistem Induk') }}</th>
+                                            <th>{{ __('OPD') }}</th>
+                                            <th>{{ __('Tanggal Disetujui') }}</th>
+                                        </tr>
+                                    </x-ui.table-head>
+                                    <tbody>
+                                        @foreach ($subdomainData as $item)
+                                            <tr>
+                                                <td>{{ $loop->iteration }}</td>
+                                                <td>{{ $item->subdomain_name }}</td>
+                                                <td>{{ $item->pse->system_name ?? '-' }}</td>
+                                                <td>{{ $item->pse->opd->name ?? '-' }}</td>
+                                                <td>{{ format_date_indo($item->approved_at) }}</td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </x-ui.table>
+                            </div>
+                        @endif
+
+                        @if (isset($hostingData) && $hostingData->isNotEmpty())
+                            <div>
+                                <h3 class="text-lg font-bold mb-4">{{ __('Rincian Data Hosting') }}</h3>
+                                <x-ui.table>
+                                    <x-ui.table-head>
+                                        <tr>
+                                            <th>{{ __('No') }}</th>
+                                            <th>{{ __('Sistem Induk') }}</th>
+                                            <th>{{ __('Jasa Sewa') }}</th>
+                                            <th>{{ __('OPD') }}</th>
+                                            <th>{{ __('Tanggal Disetujui') }}</th>
+                                        </tr>
+                                    </x-ui.table-head>
+                                    <tbody>
+                                        @foreach ($hostingData as $item)
+                                            <tr>
+                                                <td>{{ $loop->iteration }}</td>
+                                                <td>{{ $item->pse->system_name ?? '-' }}</td>
+                                                <td>{{ __(ucfirst($item->hosting_type)) }}</td>
+                                                <td>{{ $item->pse->opd->name ?? '-' }}</td>
+                                                <td>{{ format_date_indo($item->approved_at) }}</td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </x-ui.table>
+                            </div>
+                        @endif
+                        
+                        @if((!isset($pseData) || $pseData->isEmpty()) && (!isset($subdomainData) || $subdomainData->isEmpty()) && (!isset($hostingData) || $hostingData->isEmpty()))
+                            <div class="flex items-center rounded-xl border border-base-200 px-4 py-3 backdrop-blur-sm">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    class="stroke-base-content/50 h-5 w-5 shrink-0 mr-3">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <span class="text-sm">
+                                    {{ __('Tidak ada data rincian pada periode ini.') }}
+                                </span>
+                            </div>
+                        @endif
                     </div>
                 @elseif ($query->isNotEmpty())
                     <x-ui.table>
@@ -233,7 +320,7 @@
                                     <x-ui.table-sort field="hosting_type" :label="__('Tipe Hosting')" />
                                 @endif
                                 <th>{{ __('Status Keputusan') }}</th>
-                                <th>{{ __('Catatan Saya') }}</th>
+                                <th>{{ __('Catatan') }}</th>
                                 <th>{{ __('Aksi') }}</th>
                             </tr>
                         </x-ui.table-head>
@@ -356,6 +443,43 @@
                                                     </dialog>
                                                 @endcan
                                             @endif
+
+                                            <x-button.info type="button"
+                                                data-modal-show="modal_detail_{{ $issuance->uuid }}"
+                                                size="sm" icon="eye">
+                                                {{ __('Detail') }}
+                                            </x-button.info>
+
+                                            <x-ui.modal id="modal_detail_{{ $issuance->uuid }}" title="{{ __('Detail ') . strtoupper($tab) }}" size="md" :useCustomJs="true">
+                                                <table class="table table-sm">
+                                                    <tbody>
+                                                        @if ($tab === 'pse')
+                                                            <tr><td class="font-bold w-1/3">{{ __('Nama Sistem') }}</td><td class="whitespace-normal">{{ $issuance->system_name }}</td></tr>
+                                                            <tr><td class="font-bold">{{ __('Sektor') }}</td><td class="whitespace-normal">{{ $issuance->sector_label }}</td></tr>
+                                                            <tr><td class="font-bold">{{ __('OPD') }}</td><td class="whitespace-normal">{{ $issuance->opd->name ?? '-' }}</td></tr>
+                                                            <tr><td class="font-bold">{{ __('Nomor Pendataan') }}</td><td class="whitespace-normal">{{ $issuance->registration_number ?? '-' }}</td></tr>
+                                                            <tr><td class="font-bold">{{ __('Catatan') }}</td><td class="whitespace-normal">{{ $issuance->verificationHistories->last()?->notes ?? '-' }}</td></tr>
+                                                            <tr><td class="font-bold">{{ __('Status') }}</td><td><x-ui.badge variant="success">{{ $issuance->status }}</x-ui.badge></td></tr>
+                                                            <tr><td class="font-bold">{{ __('Tanggal Disetujui') }}</td><td class="whitespace-normal">{{ format_date_indo($issuance->approved_at) }}</td></tr>
+                                                        @elseif ($tab === 'subdomain')
+                                                            <tr><td class="font-bold w-1/3">{{ __('Subdomain') }}</td><td class="whitespace-normal">{{ $issuance->subdomain_name }}</td></tr>
+                                                            <tr><td class="font-bold">{{ __('Sistem Induk') }}</td><td class="whitespace-normal">{{ $issuance->pse->system_name ?? '-' }}</td></tr>
+                                                            <tr><td class="font-bold">{{ __('OPD') }}</td><td class="whitespace-normal">{{ $issuance->pse->opd->name ?? '-' }}</td></tr>
+                                                            <tr><td class="font-bold">{{ __('Catatan') }}</td><td class="whitespace-normal">{{ $issuance->verificationHistories->last()?->notes ?? '-' }}</td></tr>
+                                                            <tr><td class="font-bold">{{ __('Status') }}</td><td><x-ui.badge variant="success">{{ $issuance->status }}</x-ui.badge></td></tr>
+                                                            <tr><td class="font-bold">{{ __('Tanggal Disetujui') }}</td><td class="whitespace-normal">{{ format_date_indo($issuance->approved_at) }}</td></tr>
+                                                        @elseif ($tab === 'hosting')
+                                                            <tr><td class="font-bold w-1/3">{{ __('Tipe Hosting') }}</td><td class="whitespace-normal">{{ __(ucfirst($issuance->hosting_type)) }}</td></tr>
+                                                            <tr><td class="font-bold">{{ __('Sistem Induk') }}</td><td class="whitespace-normal">{{ $issuance->pse->system_name ?? '-' }}</td></tr>
+                                                            <tr><td class="font-bold">{{ __('OPD') }}</td><td class="whitespace-normal">{{ $issuance->pse->opd->name ?? '-' }}</td></tr>
+                                                            <tr><td class="font-bold">{{ __('Catatan Tambahan') }}</td><td class="whitespace-normal">{{ $issuance->notes ?? '-' }}</td></tr>
+                                                            <tr><td class="font-bold">{{ __('Catatan') }}</td><td class="whitespace-normal">{{ $issuance->verificationHistories->last()?->notes ?? '-' }}</td></tr>
+                                                            <tr><td class="font-bold">{{ __('Status') }}</td><td><x-ui.badge variant="success">{{ $issuance->status }}</x-ui.badge></td></tr>
+                                                            <tr><td class="font-bold">{{ __('Tanggal Disetujui') }}</td><td class="whitespace-normal">{{ format_date_indo($issuance->approved_at) }}</td></tr>
+                                                        @endif
+                                                    </tbody>
+                                                </table>
+                                            </x-ui.modal>
 
                                             @php
                                                 $routePrefix = match ($tab) {

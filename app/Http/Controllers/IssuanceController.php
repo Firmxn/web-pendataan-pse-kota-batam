@@ -145,7 +145,44 @@ class IssuanceController extends Controller
                 'category' => $category
             ];
 
-            return view('issuance.index', compact('tab', 'recapData'));
+            $pseData = null;
+            $subdomainData = null;
+            $hostingData = null;
+
+            if ($category === 'all' || $category === 'pse') {
+                $pseData = Pse::with('opd')
+                    ->where('status', 'approved')
+                    ->whereHas('verificationHistories', function ($q) use ($month, $year) {
+                        $q->where('status', 'approved')
+                          ->whereMonth('created_at', $month)
+                          ->whereYear('created_at', $year);
+                    })
+                    ->get();
+            }
+
+            if ($category === 'all' || $category === 'subdomain') {
+                $subdomainData = SubdomainRequest::with(['pse', 'pse.opd'])
+                    ->where('status', 'approved')
+                    ->whereHas('verificationHistories', function ($q) use ($month, $year) {
+                        $q->where('status', 'approved')
+                          ->whereMonth('created_at', $month)
+                          ->whereYear('created_at', $year);
+                    })
+                    ->get();
+            }
+
+            if ($category === 'all' || $category === 'hosting') {
+                $hostingData = HostingRequest::with(['pse', 'pse.opd'])
+                    ->where('status', 'approved')
+                    ->whereHas('verificationHistories', function ($q) use ($month, $year) {
+                        $q->where('status', 'approved')
+                          ->whereMonth('created_at', $month)
+                          ->whereYear('created_at', $year);
+                    })
+                    ->get();
+            }
+
+            return view('issuance.index', compact('tab', 'recapData', 'pseData', 'subdomainData', 'hostingData'));
         }
 
         $query = $query->paginate($perPage);

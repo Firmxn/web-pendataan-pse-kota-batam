@@ -3,6 +3,7 @@
     'title' => '',
     'variant' => 'info',
     'size' => 'md',
+    'useCustomJs' => false,
 ])
 
 @php
@@ -34,12 +35,18 @@
         </div>
 
         <div class="modal-action">
-            <form method="dialog">
-                <x-button.ghost>Tutup</x-button.ghost>
-            </form>
+            @if($useCustomJs)
+                <x-button.ghost type="button" data-modal-close="{{ $id }}">Tutup</x-button.ghost>
+            @else
+                <form method="dialog">
+                    <x-button.ghost>Tutup</x-button.ghost>
+                </form>
+            @endif
         </div>
     </div>
+    @if(!$useCustomJs)
     <form method="dialog" class="modal-backdrop">
         <button>close</button>
     </form>
+    @endif
 </dialog>

@@ -11,7 +11,7 @@
                         <tr>
                             <td>Nomor</td>
                             <td>:</td>
-                            <td>B- &nbsp; &nbsp; /DISKOMINFO/{{ date('Y') }}</td>
+                            <td>....................../DISKOMINFO/{{ date('Y') }}</td>
                         </tr>
                         <tr>
                             <td>Sifat</td>
@@ -33,7 +33,7 @@
                 <td valign="top" align="right"
                     style="text-align: right; vertical-align: top; padding-top: 8px; white-space: nowrap;">
                     <p style="margin: 0; line-height: 1;">Batam,
-                        {{ format_date_indo($subdomain->verificationHistories->last()->created_at ?? now()) }}</p>
+                        {{ format_date_indo($subdomain->verificationHistories->last()?->created_at ?? now()) }}</p>
                 </td>
             </tr>
         </table>
