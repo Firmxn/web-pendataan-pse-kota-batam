@@ -127,6 +127,14 @@ class PseController extends Controller
             'pic_phone.regex' => 'Format nomor telepon PIC harus berupa nomor telepon valid yang diawali dengan kode negara 62 (contoh: 628123456789 atau 08123456789).',
         ]);
 
+        // Validasi ketersediaan subdomain
+        foreach ($validatedData['subdomains'] as $subdomainName) {
+            $availability = \App\Models\SubdomainRequest::checkAvailability($subdomainName, 'baru');
+            if (!$availability['available']) {
+                return back()->with('error', $availability['message'])->withInput();
+            }
+        }
+
         // Validasi maksimal 2 draft PSE per user
         $draftCount = Pse::where('user_id', Auth::id())
             ->where('status', 'draft')
@@ -304,6 +312,14 @@ class PseController extends Controller
         ], [
             'pic_phone.regex' => 'Format nomor telepon PIC harus berupa nomor telepon valid yang diawali dengan kode negara 62 (contoh: 628123456789 atau 08123456789).',
         ]);
+
+        // Validasi ketersediaan subdomain
+        foreach ($validatedData['subdomains'] as $subdomainName) {
+            $availability = \App\Models\SubdomainRequest::checkAvailability($subdomainName, 'baru');
+            if (!$availability['available']) {
+                return back()->with('error', $availability['message'])->withInput();
+            }
+        }
 
         $oldStorageLocation = $pse->getOriginal('storage_location');
         $pse->update($validatedData);
@@ -514,6 +530,14 @@ class PseController extends Controller
         // Hanya draft dan rejected yang bisa diajukan (kembali)
         if (!in_array($pse->status, ['draft', 'rejected'])) {
             return back()->with('error', __('messages.pse.submit_error_status', ['status' => $pse->status]));
+        }
+
+        // Validasi ketersediaan seluruh subdomain sebelum diajukan (mencegah bentrok jika ada yang mengambilnya saat masih draf)
+        foreach ($pse->subdomainRequests as $subdomain) {
+            $availability = \App\Models\SubdomainRequest::checkAvailability($subdomain->subdomain_name, 'baru', $subdomain->id);
+            if (!$availability['available']) {
+                return redirect()->route('pse.edit', $pse)->with('error', $availability['message']);
+            }
         }
 
         // Validasi kelengkapan berkas subdomain (Single Flow)
