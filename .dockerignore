@@ -1,0 +1,52 @@
+# ==============================================================================
+# .DOCKERIGNORE — Web Pendataan PSE Kota Batam
+# Mencegah file lokal/sampah ikut masuk ke dalam Docker image saat build.
+# Hasilnya: proses build lebih cepat dan ukuran image lebih kecil.
+# ==============================================================================
+
+# Dependensi (akan di-install ulang di dalam container)
+/vendor
+/node_modules
+
+# Hasil build frontend (akan di-build ulang di dalam container)
+/public/hot
+/public/build
+
+# File environment (JANGAN masukkan .env ke dalam image!)
+.env
+.env.*
+!.env.example
+
+# File Docker itu sendiri (tidak perlu ada di dalam image)
+Dockerfile
+docker-compose.yml
+docker-compose*.yml
+.dockerignore
+/docker
+
+# Direktori Git dan IDE
+.git
+.gitignore
+.gitattributes
+.editorconfig
+.vscode
+/.idea
+/.kiro
+
+# Logs dan cache
+/storage/logs/*.log
+/bootstrap/cache/*.php
+
+# File testing dan development
+/tests
+phpunit.xml
+.phpunit.result.cache
+pint.json
+
+# Dokumentasi
+/doc
+README.md
+
+# File OS
+.DS_Store
+Thumbs.db

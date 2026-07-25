@@ -35,6 +35,7 @@ yarn-error.log
 *~
 /.kiro
 /.trae
+/.vscode
 
 # OS
 .DS_Store
@@ -78,6 +79,7 @@ yarn.lock
 /docs/_build
 /docs/.doctrees
 /doc/RULES.md
+AGENTS.md
 
 # Local development
 .phpunit.result.cache

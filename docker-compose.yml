@@ -1,0 +1,86 @@
+# ==============================================================================
+# DOCKER COMPOSE — Web Pendataan PSE Kota Batam
+# Orkestrasi multi-container: Aplikasi Laravel + Database MySQL
+# ==============================================================================
+# Cara pakai:
+#   1. Pastikan file .env sudah dikonfigurasi (salin dari .env.example)
+#   2. Jalankan: docker-compose up -d --build
+#   3. Akses aplikasi di: http://localhost:8000
+# ==============================================================================
+
+services:
+
+  # ============================================================
+  # Service 1: Aplikasi Laravel
+  # ============================================================
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pse_app
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      # Mount direktori storage agar file yang diupload persisten
+      # (tidak hilang saat container di-restart)
+      - pse_storage:/var/www/html/storage
+    environment:
+      # Override variabel DB agar mengarah ke container 'db' di bawah
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: ${DB_DATABASE:-db_pse_batam}
+      DB_USERNAME: ${DB_USERNAME:-pse_user}
+      DB_PASSWORD: ${DB_PASSWORD:-pse_password}
+      APP_URL: http://localhost:8000
+    depends_on:
+      db:
+        # Tunggu sampai database benar-benar sehat sebelum app dijalankan
+        condition: service_healthy
+    networks:
+      - pse_network
+
+  # ============================================================
+  # Service 2: Database MySQL 8.0
+  # ============================================================
+  db:
+    image: mysql:8.0
+    container_name: pse_db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-db_pse_batam}
+      MYSQL_USER: ${DB_USERNAME:-pse_user}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-pse_password}
+      # Password untuk user root (digunakan untuk administrasi internal)
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root_secret}
+    volumes:
+      # Persist data database agar tidak hilang saat container di-restart
+      - pse_db_data:/var/lib/mysql
+    ports:
+      # Ekspos port DB ke host (opsional, untuk koneksi via tools seperti TablePlus/DBeaver)
+      - "3307:3306"
+    healthcheck:
+      # Cek kesehatan DB: pastikan MySQL sudah siap menerima koneksi
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "--password=${DB_ROOT_PASSWORD:-root_secret}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - pse_network
+
+# ==============================================================
+# Volumes: Penyimpanan data persisten
+# ==============================================================
+volumes:
+  pse_db_data:
+    driver: local
+  pse_storage:
+    driver: local
+
+# ==============================================================
+# Networks: Jaringan isolasi antar container
+# ==============================================================
+networks:
+  pse_network:
+    driver: bridge
